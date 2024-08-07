@@ -1,11 +1,21 @@
-import { Suspense } from 'react';
+import { Suspense, lazy} from 'react';
 import { Skeleton } from "../components/ui/skeleton";
+import TierListPage from '../features/tierlist/index';
+import { Routes, Route } from "react-router-dom";
+
+//const TierList = lazy(() => import('../features/tierlist/index'));
 
 function App() {
   return (
-    <Suspense fallback={<LandingSkeleton />}>
-      <LandingSkeleton />
-    </Suspense>
+    /*<Suspense fallback={<LandingSkeleton />}>
+      <TierList />
+    </Suspense>*/
+    <Routes>
+      <Route path='/'
+        element={<TierListPage />}
+      >
+      </Route>
+    </Routes>
   );
 }
 
