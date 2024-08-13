@@ -7,6 +7,7 @@ import { Skeleton } from "../../components/ui/skeleton";
 
 function TierListPage() {
     const [items, setItems] = useState<Item[]>([]);
+    const [currentRanks, setRanks] = useState<string[]>(['S', 'A', 'B', 'C', 'D', 'F']);
 
     const addItem = () => {
         const colors = ['bg-amber-300', 'bg-rose-400', 'bg-stone-300', 'bg-cyan-400', 'bg-violet-700', 'bg-pink-800'];
@@ -16,8 +17,10 @@ function TierListPage() {
     };
 
     return (
-        <div>
-            <RankContainer />
+        <div className="p-2 bg-slate-700">
+            {currentRanks.map((rank: string, idx: number) =>
+              <RankContainer key={idx} ranks={currentRanks} idx={idx} setRanks={setRanks} />
+            )}
             <div className="flex flex-col">
                 <ItemContainerControls addItem={addItem}/>
                 <ItemContainer items={items}/>

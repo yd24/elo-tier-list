@@ -6,7 +6,7 @@ interface ItemContainerProps {
 
 function ItemContainer(props:ItemContainerProps) {
     return (
-        <div className="flex gap-5 bg-slate-100">
+        <div className="flex w-full min-h-20 p-5 gap-5 bg-slate-200">
             {props.items.map((item, idx) => {
               return (
                <div key={idx} className={`w-[80px] h-[80px] ${item.color}`}>
