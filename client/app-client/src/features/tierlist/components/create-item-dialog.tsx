@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { z } from 'zod';
 import {
   Dialog,
   DialogContent,
@@ -6,6 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogClose,
+  DialogFooter,
 } from "../../../components/ui/dialog";
 
 interface CreateItemDialogProps {
@@ -14,9 +16,21 @@ interface CreateItemDialogProps {
 
 function CreateItemDialog(props: CreateItemDialogProps) {
     const [itemName, setItemName] = useState('');
+    const [open, setOpen] = useState(false);
+    const [dialogError, setDialogError] = useState(false);
+    const itemNameValidation = z.string().min(1).max(50);
 
     const addItemHandler = () => {
-        props.addItem(itemName);
+        try {
+            itemNameValidation.parse(itemName);
+            setDialogError(false);
+            props.addItem(itemName);
+            setItemName('');
+            setOpen(false);
+        } catch (error) {
+            setDialogError(true);
+        }
+
     }
 
     const itemNameHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,7 +38,7 @@ function CreateItemDialog(props: CreateItemDialogProps) {
     }
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger className="bg-slate-200 px-5 py-2">Create New Item</DialogTrigger>
             <DialogContent>
                 <DialogHeader>
@@ -46,9 +60,12 @@ function CreateItemDialog(props: CreateItemDialogProps) {
                         <input type="file" />
                     </div>
                 </div>
-                <DialogClose className="flex">
-                    <button className="bg-slate-300 px-4 py-1" onClick={addItemHandler}>Add Item to List</button>
-                </DialogClose>
+                <button className="bg-slate-300 px-4 py-1" onClick={addItemHandler}>Add Item to List</button>
+                <DialogFooter className="text-red-500">
+                    {dialogError &&
+                        <p>Error: Name is invalid.</p>
+                    }
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     );
