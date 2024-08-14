@@ -1,3 +1,4 @@
 export type Item = {
-    color: string
+    color: string,
+    name: string,
 }

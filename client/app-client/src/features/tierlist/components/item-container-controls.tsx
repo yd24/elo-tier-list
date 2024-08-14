@@ -1,11 +1,13 @@
+import CreateItemDialog from './create-item-dialog';
+
 interface ItemsContainerControlsProps {
-    addItem: () => void;
+    addItem: (name: string) => void;
 }
 
 function ItemsContainerControls(props: ItemsContainerControlsProps) {
     return (
         <div className="p-5">
-            <button className="bg-slate-300" onClick={props.addItem}>Add Item</button>
+            <CreateItemDialog addItem={props.addItem}/>
         </div>
     );
 }

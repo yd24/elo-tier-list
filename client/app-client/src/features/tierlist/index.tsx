@@ -9,10 +9,13 @@ function TierListPage() {
     const [items, setItems] = useState<Item[]>([]);
     const [currentRanks, setRanks] = useState<string[]>(['S', 'A', 'B', 'C', 'D', 'F']);
 
-    const addItem = () => {
+    const addItem = (name: string) => {
         const colors = ['bg-amber-300', 'bg-rose-400', 'bg-stone-300', 'bg-cyan-400', 'bg-violet-700', 'bg-pink-800'];
         let randomColor = colors[Math.floor(Math.random() * 6)];
-        let item = { color: randomColor};
+        let item = { 
+          color: randomColor, 
+          name: name
+        };
         setItems([...items, item]);
     };
 

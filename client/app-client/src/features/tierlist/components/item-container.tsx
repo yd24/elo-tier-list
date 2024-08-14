@@ -10,6 +10,7 @@ function ItemContainer(props:ItemContainerProps) {
             {props.items.map((item, idx) => {
               return (
                <div key={idx} className={`w-[80px] h-[80px] ${item.color}`}>
+                    {item.name}
                 </div> 
               )  
             })}
