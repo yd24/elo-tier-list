@@ -1,0 +1,6 @@
+@RankingAPI_HostAddress = http://localhost:5249
+
+GET {{RankingAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
