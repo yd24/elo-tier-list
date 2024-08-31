@@ -1,22 +1,25 @@
-import type { Item } from '../types/Item';
-import { useState } from 'react';
+import { useState } from "react";
+import { useDroppable } from "@dnd-kit/core";
+
+import type { ItemType } from "../types/ItemType";
+import Item from "./item";
 
 interface ItemContainerProps {
-    items: Item[];
+  id: number;
+  items: ItemType[];
 }
 
-export default function ItemContainer(props:ItemContainerProps) {
-    const [items, setItems] = useState(props.items);
+export default function ItemContainer(props: ItemContainerProps) {
+  const [items, setItems] = useState(props.items);
+  const { isOver, setNodeRef } = useDroppable({
+    id: props.id + 1,
+  });
 
-    return (
-        <div className="flex w-full min-h-20 p-5 gap-5">
-            {props.items.map((item, idx) => {
-              return (
-               <div key={idx} className={`bg-white p-5`}>
-                    {item.title}
-                </div> 
-              )  
-            })}
-        </div>
-    );
+  return (
+    <div ref={setNodeRef} className={"flex w-full min-h-20 p-5 gap-5"}>
+      {props.items.map((item, idx) => (
+        <Item key={idx} id={idx} item={item} />
+      ))}
+    </div>
+  );
 }
