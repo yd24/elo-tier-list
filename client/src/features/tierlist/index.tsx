@@ -52,9 +52,13 @@ function TierListPage() {
   };
 
   const updateRankHandler = (value: string, idx: number) => {
-    const updatedRanks = [...ranks];
-    updatedRanks[idx] = value;
-    setRanks(updatedRanks);
+    //use anonymous function within hook to ensure that most recent state
+    //provided by the hook is accessed.
+    setRanks((prevRanks) => {
+      const updatedRanks = [...prevRanks];
+      updatedRanks[idx] = value;
+      return updatedRanks;
+    });
   }
 
   return (
