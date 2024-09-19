@@ -4,55 +4,57 @@ import RankContainer from "./components/rank-container";
 
 import { useState } from "react";
 
-import type { ItemType } from "./types/ItemType";
 import type { ItemContainerType } from "./types/ItemContainerType";
+import { createItemContainer } from "./types/ItemContainerType";
 import { Skeleton } from "../../components/ui/skeleton";
-import { DndContext } from "@dnd-kit/core";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
 
 const test_data = [
   {
-    id: 1,
+    id: "Item-0",
     title: "Jollibee",
     elo: 1400,
   },
   {
-    id: 2,
+    id: "Item-1",
     title: "KFC",
     elo: 1200,
   },
   {
-    id: 3,
+    id: "Item-2",
     title: "Popeyes",
     elo: 400,
   },
   {
-    id: 4,
+    id: "Item-3",
     title: "Church's",
     elo: 1600,
   },
   {
-    id: 5,
+    id: "Item-4",
     title: "Applebee",
     elo: 200,
   },
 ];
 
 function TierListPage() {
-  const [ranks, setRanks] = useState<string[]>([
-    "S",
-    "A",
-    "B",
-    "C",
-    "D",
-    "F",
-  ]);
+  const [ranks, setRanks] = useState<string[]>(["S", "A", "B", "C", "D", "F"]);
 
-  //setup containers for each rank and item
-  const [items, setItems] = useState<ItemContainerType>(() => {
-    const initialContainers = [test_data];
-    ranks.forEach(() => initialContainers.push([]));
-    return initialContainers;
-  });
+  //setup containers for each rank and the unranked items
+  const [itemContainers, setItemContainers] = useState<ItemContainerType[]>(
+    () => {
+      const initialContainers = [];
+
+      ranks.forEach((rank, idx) => {
+        let rankContainer = createItemContainer(`rankList-${idx}`, []);
+        initialContainers.push(rankContainer);
+      });
+
+      initialContainers.push(createItemContainer("itemList", test_data));
+
+      return initialContainers;
+    }
+  );
 
   const addItem = (name: string) => {
     //to-do
@@ -66,10 +68,57 @@ function TierListPage() {
       updatedRanks[idx] = value;
       return updatedRanks;
     });
-  }
+  };
 
-  const dragEndHandler = (event) => {
-    const {over} = event;
+  const dragEndHandler = (event: DragEndEvent) => {
+    //active = currently dragging item, over = item being hovered over
+    const { active, over } = event;
+    setItemContainers((prevContainers) => {
+      const updatedContainers = [...prevContainers];
+      if (over) {
+        //we find the idx so we can update the containers later
+        const overContainerIndex = prevContainers.findIndex((container) => {
+          //we might be hovering over a container or an item
+          //so we check for both
+          if (container.containerID === over.id) {
+            return true;
+          } else {
+            return container.items.find((item) => item.id === over.id);
+          }
+        });
+        const activeContainerIndex = prevContainers.findIndex((container) =>
+          container.items.find((item) => item.id === active.id)
+        );
+
+        //select the relevant containers
+        const overContainer = prevContainers[overContainerIndex];
+        const activeContainer = prevContainers[activeContainerIndex];
+
+        //if we have valid containers, move the item to its appropriate container and position
+        if (overContainer && activeContainer) {
+          const activeIndex = activeContainer.items.findIndex(
+            (item) => item.id === active.id
+          );
+          const activeItem = activeContainer.items.splice(activeIndex, 1)[0];
+
+          if (over.id === overContainer.containerID) {
+            overContainer.items.push(activeItem);
+          } else {
+            const overIndex = overContainer.items.findIndex(
+              (item) => item.id === over.id
+            );
+            //figure out if we want active item to be placed before or after
+            //the over item.
+            const destinationIndex = activeIndex > overIndex ? overIndex : overIndex + 1;
+            overContainer.items.splice(destinationIndex, 0, activeItem);
+          }
+
+          updatedContainers[overContainerIndex] = overContainer;
+          updatedContainers[activeContainerIndex] = activeContainer;
+        }
+      }
+      return updatedContainers;
+    });
   };
 
   return (
@@ -79,17 +128,20 @@ function TierListPage() {
           {ranks.map((rank: string, idx: number) => (
             <RankContainer
               key={idx}
-              id={`rankList-${idx}`}
+              dndID={itemContainers[idx].containerID}
               rankID={idx}
               rank={rank}
               updateRankHandler={updateRankHandler}
-              items={items[idx + 1]}
+              items={itemContainers[idx].items}
             />
           ))}
         </div>
         <div id="itemArea" className="flex flex-col bg-slate-300">
           <ItemContainerControls addItem={addItem} />
-          <ItemContainer items={items[0]} id="itemList" />
+          <ItemContainer
+            items={itemContainers[itemContainers.length - 1].items}
+            dndID={itemContainers[itemContainers.length - 1].containerID}
+          />
         </div>
       </DndContext>
     </div>

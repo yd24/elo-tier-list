@@ -4,7 +4,7 @@ import ItemContainer from './item-container';
 import type { ItemType } from '../types/ItemType';
 
 interface RankContainerProps {
-    id: string,
+    dndID: string,
     rank: string,
     rankID: number,
     updateRankHandler: (value: string, idx: number) => void,
@@ -16,8 +16,8 @@ export default function RankContainer(props: RankContainerProps) {
         props.updateRankHandler(event.target.value, props.rankID);
     };
 
-    const {isOver, setNodeRef} = useDroppable({
-        id: props.id,
+    const {setNodeRef} = useDroppable({
+        id: props.dndID,
     });
 
     return (
@@ -29,7 +29,7 @@ export default function RankContainer(props: RankContainerProps) {
                 type="text" value={props.rank}
                 onChange={updateRank}
             />
-            <ItemContainer id={props.id} items={props.items}/>
+            <ItemContainer dndID={props.dndID} items={props.items}/>
         </div>
     );
 }
