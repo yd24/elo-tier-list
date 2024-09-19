@@ -38,7 +38,7 @@ const test_data = [
 
 function TierListPage() {
   const [items, setItems] = useState<ItemType[]>(test_data);
-  const [currentRanks, setRanks] = useState<string[]>([
+  const [ranks, setRanks] = useState<string[]>([
     "S",
     "A",
     "B",
@@ -51,26 +51,29 @@ function TierListPage() {
     //to-do
   };
 
-  const changeRankHandler = (value: string, idx: number) => {
-    const newRanks = [...currentRanks];
-    newRanks[idx] = value;
-    setRanks(newRanks);
-  };
+  const updateRankHandler = (value: string, idx: number) => {
+    const updatedRanks = [...ranks];
+    updatedRanks[idx] = value;
+    setRanks(updatedRanks);
+  }
 
   return (
-    <div className="p-2 bg-slate-700">
+    <div>
       <DndContext>
-        {currentRanks.map((rank: string, idx: number) => (
-          <RankContainer
-            key={idx}
-            id={idx}
-            rank={rank}
-            changeRankHandler={changeRankHandler}
-          />
-        ))}
-        <div className="flex flex-col bg-slate-300">
+        <div id="rankArea" className="p-2 bg-slate-700">
+          {ranks.map((rank: string, idx: number) => (
+            <RankContainer
+              key={idx}
+              id={`rankList-${idx}`}
+              rankID={idx}
+              rank={rank}
+              updateRankHandler={updateRankHandler}
+            />
+          ))}
+        </div>
+        <div id="itemArea" className="flex flex-col bg-slate-300">
           <ItemContainerControls addItem={addItem} />
-          <ItemContainer items={items} id={currentRanks.length + 2} />
+          <ItemContainer items={items} id="itemList" />
         </div>
       </DndContext>
     </div>

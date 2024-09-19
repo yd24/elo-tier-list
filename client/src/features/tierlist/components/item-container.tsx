@@ -5,7 +5,7 @@ import type { ItemType } from "../types/ItemType";
 import Item from "./item";
 
 interface ItemContainerProps {
-  id: number;
+  id: string;
   items: ItemType[];
 }
 
