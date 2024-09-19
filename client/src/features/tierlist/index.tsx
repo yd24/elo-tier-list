@@ -5,6 +5,7 @@ import RankContainer from "./components/rank-container";
 import { useState } from "react";
 
 import type { ItemType } from "./types/ItemType";
+import type { ItemContainerType } from "./types/ItemContainerType";
 import { Skeleton } from "../../components/ui/skeleton";
 import { DndContext } from "@dnd-kit/core";
 
@@ -37,7 +38,6 @@ const test_data = [
 ];
 
 function TierListPage() {
-  const [items, setItems] = useState<ItemType[]>(test_data);
   const [ranks, setRanks] = useState<string[]>([
     "S",
     "A",
@@ -46,6 +46,13 @@ function TierListPage() {
     "D",
     "F",
   ]);
+
+  //setup containers for each rank and item
+  const [items, setItems] = useState<ItemContainerType>(() => {
+    const initialContainers = [test_data];
+    ranks.forEach(() => initialContainers.push([]));
+    return initialContainers;
+  });
 
   const addItem = (name: string) => {
     //to-do
@@ -61,9 +68,13 @@ function TierListPage() {
     });
   }
 
+  const dragEndHandler = (event) => {
+    const {over} = event;
+  };
+
   return (
     <div>
-      <DndContext>
+      <DndContext onDragEnd={dragEndHandler}>
         <div id="rankArea" className="p-2 bg-slate-700">
           {ranks.map((rank: string, idx: number) => (
             <RankContainer
@@ -72,12 +83,13 @@ function TierListPage() {
               rankID={idx}
               rank={rank}
               updateRankHandler={updateRankHandler}
+              items={items[idx + 1]}
             />
           ))}
         </div>
         <div id="itemArea" className="flex flex-col bg-slate-300">
           <ItemContainerControls addItem={addItem} />
-          <ItemContainer items={items} id="itemList" />
+          <ItemContainer items={items[0]} id="itemList" />
         </div>
       </DndContext>
     </div>
