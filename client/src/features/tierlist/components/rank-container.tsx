@@ -21,15 +21,18 @@ export default function RankContainer(props: RankContainerProps) {
     });
 
     return (
-        <div className="flex min-h-32 mb-2 even:bg-slate-100 odd:bg-slate-300"
-            ref={setNodeRef}
-        >
-            <input 
-                className="bg-red-500 max-w-20 min-h-20 border-none text-center" 
-                type="text" value={props.rank}
-                onChange={updateRank}
-            />
-            <ItemContainer dndID={props.dndID} items={props.items}/>
-        </div>
+        <>
+            <div className="flex min-h-32 mb-2 even:bg-slate-100 odd:bg-slate-300"
+                ref={setNodeRef}
+            >
+                <input 
+                    className="bg-red-500 max-w-20 min-h-20 border-none text-center" 
+                    type="text" value={props.rank}
+                    onChange={updateRank}
+                />
+                <ItemContainer dndID={props.dndID} items={props.items}/>
+            </div>
+        </>
+
     );
 }

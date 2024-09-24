@@ -1,6 +1,7 @@
 import ItemContainer from "./components/item-container";
 import ItemContainerControls from "./components/item-container-controls";
 import RankContainer from "./components/rank-container";
+import RankToggle from "./components/rank-toggle";
 
 import { useState } from "react";
 
@@ -41,6 +42,7 @@ const test_data = [
 
 function TierListPage() {
   const [ranks, setRanks] = useState<string[]>(["S", "A", "B", "C", "D", "F"]);
+  const [isELORanksOn, toggleELORanks] = useState(false);
 
   //setup containers for each rank and the unranked items
   const [itemContainers, setItemContainers] = useState<ItemContainerType[]>(
@@ -65,6 +67,10 @@ function TierListPage() {
       prevContainers[prevContainers.length - 1].items.push(newItem);
       return [...prevContainers];
     });
+  };
+
+  const handleELOToggle = () => {
+    toggleELORanks((currentStatus) => !currentStatus);
   };
 
   const updateRankHandler = (value: string, idx: number) => {
@@ -126,7 +132,8 @@ function TierListPage() {
             //active item is rearranging within same container
             //we want it to go BEFORE if it's from the right side, AFTER if it's from the left side.
             if (activeContainer === overContainer) {
-              destinationIndex = activeIndex > overIndex ? overIndex : overIndex + 1;
+              destinationIndex =
+                activeIndex > overIndex ? overIndex : overIndex + 1;
             } else {
               //active item is coming from another container
               //intuitively, we want it to drop BEFORE the over item
@@ -144,11 +151,10 @@ function TierListPage() {
   };
 
   return (
-    <div>
-      <DndContext
-        onDragEnd={dragEndHandler}
-      >
-        <div id="rankArea" className="p-2 bg-slate-700">
+    <div className="bg-slate-700 p-2">
+      <DndContext onDragEnd={dragEndHandler}>
+        <RankToggle isELORanksOn={isELORanksOn} handleELOToggle={handleELOToggle} />
+        <div id="rankArea">
           {ranks.map((rank: string, idx: number) => (
             <RankContainer
               key={idx}
