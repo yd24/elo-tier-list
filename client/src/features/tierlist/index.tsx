@@ -7,7 +7,7 @@ import { useState } from "react";
 import type { ItemContainerType } from "./types/ItemContainerType";
 import { createItemContainer } from "./types/ItemContainerType";
 import { Skeleton } from "../../components/ui/skeleton";
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, DragMoveEvent } from "@dnd-kit/core";
 
 const test_data = [
   {
@@ -70,12 +70,26 @@ function TierListPage() {
     });
   };
 
+  let currPos: { x: number; y: number } | null = null;
+  const dragStartHandler = () => {
+    currPos = null;
+  };
+
+  const dragMoveHandler = (event: DragMoveEvent) => {
+    if (!currPos) {
+      currPos = { x: event.delta.x, y: event.delta.y };
+    }
+  };
+
   const dragEndHandler = (event: DragEndEvent) => {
     //active = currently dragging item, over = item being hovered over
     const { active, over } = event;
     setItemContainers((prevContainers) => {
       const updatedContainers = [...prevContainers];
-      if (over) {
+      const threshold = 20;
+      const totalMoved = currPos ? currPos.x + currPos.y : 0;
+      console.log(totalMoved);
+      if (over && totalMoved > threshold) {
         //we find the idx so we can update the containers later
         const overContainerIndex = prevContainers.findIndex((container) => {
           //we might be hovering over a container or an item
@@ -109,7 +123,8 @@ function TierListPage() {
             );
             //figure out if we want active item to be placed before or after
             //the over item.
-            const destinationIndex = activeIndex > overIndex ? overIndex : overIndex + 1;
+            const destinationIndex =
+              activeIndex > overIndex ? overIndex : overIndex + 1;
             overContainer.items.splice(destinationIndex, 0, activeItem);
           }
 
@@ -123,7 +138,11 @@ function TierListPage() {
 
   return (
     <div>
-      <DndContext onDragEnd={dragEndHandler}>
+      <DndContext
+        onDragEnd={dragEndHandler}
+        onDragMove={dragMoveHandler}
+        onDragStart={dragStartHandler}
+      >
         <div id="rankArea" className="p-2 bg-slate-700">
           {ranks.map((rank: string, idx: number) => (
             <RankContainer
