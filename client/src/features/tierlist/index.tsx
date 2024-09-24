@@ -5,7 +5,9 @@ import RankContainer from "./components/rank-container";
 import { useState } from "react";
 
 import type { ItemContainerType } from "./types/ItemContainerType";
+import type { ItemType } from "./types/ItemType";
 import { createItemContainer } from "./types/ItemContainerType";
+import { createItem } from "./types/ItemType";
 import { Skeleton } from "../../components/ui/skeleton";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 
@@ -58,6 +60,11 @@ function TierListPage() {
 
   const addItem = (name: string) => {
     //to-do
+    const newItem: ItemType = createItem(name);
+    setItemContainers((prevContainers) => {
+      prevContainers[prevContainers.length - 1].items.push(newItem);
+      return [...prevContainers];
+    });
   };
 
   const updateRankHandler = (value: string, idx: number) => {
@@ -73,11 +80,12 @@ function TierListPage() {
   const dragEndHandler = (event: DragEndEvent) => {
     //active = currently dragging item, over = item being hovered over
     const { active, over, delta } = event;
+
     const dragXThreshold = 4000;
     const dragYThreshold = 10000;
     const dragX = Math.pow(delta.x, 2);
     const dragY = Math.pow(delta.y, 2);
-    console.log(dragX, dragY);
+
     setItemContainers((prevContainers) => {
       const updatedContainers = [...prevContainers];
       if (over && (dragY > dragYThreshold || dragX > dragXThreshold)) {
