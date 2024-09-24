@@ -4,11 +4,11 @@ import ItemContainer from './item-container';
 import type { ItemType } from '../types/ItemType';
 
 interface RankContainerProps {
-    dndID: string,
-    rank: string,
-    rankID: number,
-    updateRankHandler: (value: string, idx: number) => void,
-    items: ItemType[],
+    dndID: string;
+    rank: string;
+    rankID: number;
+    updateRankHandler: (value: string, idx: number) => void;
+    items: ItemType[];
 }
 
 export default function RankContainer(props: RankContainerProps) {
@@ -22,11 +22,11 @@ export default function RankContainer(props: RankContainerProps) {
 
     return (
         <>
-            <div className="flex min-h-32 mb-2 even:bg-slate-100 odd:bg-slate-300"
+            <div className="flex min-h-32 mb-5 odd:bg-slate-100 even:bg-slate-200"
                 ref={setNodeRef}
             >
                 <input 
-                    className="bg-red-500 max-w-20 min-h-20 border-none text-center" 
+                    className="max-w-20 min-h-20 border-none text-center" 
                     type="text" value={props.rank}
                     onChange={updateRank}
                 />

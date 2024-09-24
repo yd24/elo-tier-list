@@ -38,7 +38,7 @@ function CreateItemDialog(props: CreateItemDialogProps) {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger className="bg-slate-200 px-5 py-2">Create New Item</DialogTrigger>
+            <DialogTrigger className="bg-white hover:bg-slate-200 px-5 py-2">Create New Item</DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>

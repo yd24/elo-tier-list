@@ -3,7 +3,7 @@ import ItemContainerControls from "./components/item-container-controls";
 import RankContainer from "./components/rank-container";
 import RankToggle from "./components/rank-toggle";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import type { ItemContainerType } from "./types/ItemContainerType";
 import type { ItemType } from "./types/ItemType";
@@ -42,30 +42,46 @@ const test_data = [
 
 function TierListPage() {
   const [ranks, setRanks] = useState<string[]>(["S", "A", "B", "C", "D", "F"]);
-  const [isELORanksOn, toggleELORanks] = useState(false);
-
-  //setup containers for each rank and the unranked items
+  //setup initial rank and unranked containers
+  //keep copy of original items for resetting positions
+  const [originalItems, setOriginalItems] = useState<ItemType[]>([]);
   const [itemContainers, setItemContainers] = useState<ItemContainerType[]>(
     () => {
-      const initialContainers = [];
-
+      const initialContainers: ItemContainerType[] = [];
       ranks.forEach((rank, idx) => {
         let rankContainer = createItemContainer(`rankList-${idx}`, []);
         initialContainers.push(rankContainer);
       });
-
       initialContainers.push(createItemContainer("itemList", test_data));
-
+      setOriginalItems([
+        ...initialContainers[initialContainers.length - 1].items,
+      ]);
       return initialContainers;
     }
   );
+  const [isELORanksOn, toggleELORanks] = useState(false);
 
   const addItem = (name: string) => {
     //to-do
     const newItem: ItemType = createItem(name);
+    setOriginalItems((prevItems) => [...prevItems, newItem]);
     setItemContainers((prevContainers) => {
-      prevContainers[prevContainers.length - 1].items.push(newItem);
-      return [...prevContainers];
+      //spread operator only does shallow copy
+      //so if the state is nested, the inner state elements will still reference the original state.
+      //we can do a deep copy using spread operators within map.
+      const updatedContainers = prevContainers.map((container) => ({...container, items: [...container.items]}));
+      updatedContainers[updatedContainers.length - 1].items.push(newItem);
+      return updatedContainers;
+    });
+  };
+
+  const resetItems = () => {
+    setItemContainers((prevContainers) => {
+      const resetContainers = [...prevContainers].map((container) =>
+        createItemContainer(container.containerID, [])
+      );
+      resetContainers[resetContainers.length - 1].items = [...originalItems];
+      return resetContainers;
     });
   };
 
@@ -91,12 +107,11 @@ function TierListPage() {
     const dragYThreshold = 10000;
     const dragX = Math.pow(delta.x, 2);
     const dragY = Math.pow(delta.y, 2);
-
     setItemContainers((prevContainers) => {
       const updatedContainers = [...prevContainers];
       if (over && (dragY > dragYThreshold || dragX > dragXThreshold)) {
         //we find the idx so we can update the containers later
-        const overContainerIndex = prevContainers.findIndex((container) => {
+        const overContainerIndex = updatedContainers.findIndex((container) => {
           //we might be hovering over a container or an item
           //so we check for both
           if (container.containerID === over.id) {
@@ -105,13 +120,13 @@ function TierListPage() {
             return container.items.find((item) => item.id === over.id);
           }
         });
-        const activeContainerIndex = prevContainers.findIndex((container) =>
+        const activeContainerIndex = updatedContainers.findIndex((container) =>
           container.items.find((item) => item.id === active.id)
         );
 
         //select the relevant containers
-        const overContainer = prevContainers[overContainerIndex];
-        const activeContainer = prevContainers[activeContainerIndex];
+        const overContainer = updatedContainers[overContainerIndex];
+        const activeContainer = updatedContainers[activeContainerIndex];
 
         //if we have valid containers, move the item to its appropriate container and position
         if (overContainer && activeContainer) {
@@ -150,10 +165,17 @@ function TierListPage() {
     });
   };
 
+  useEffect(() => {
+    console.log(originalItems, 'original');
+  }, [originalItems]);
+
   return (
-    <div className="bg-slate-700 p-2">
+    <div className="bg-slate-100 p-5">
       <DndContext onDragEnd={dragEndHandler}>
-        <RankToggle isELORanksOn={isELORanksOn} handleELOToggle={handleELOToggle} />
+        <RankToggle
+          isELORanksOn={isELORanksOn}
+          handleELOToggle={handleELOToggle}
+        />
         <div id="rankArea">
           {ranks.map((rank: string, idx: number) => (
             <RankContainer
@@ -166,8 +188,8 @@ function TierListPage() {
             />
           ))}
         </div>
-        <div id="itemArea" className="flex flex-col bg-slate-300">
-          <ItemContainerControls addItem={addItem} />
+        <div id="itemArea" className="flex flex-col">
+          <ItemContainerControls addItem={addItem} resetItems={resetItems} />
           <ItemContainer
             items={itemContainers[itemContainers.length - 1].items}
             dndID={itemContainers[itemContainers.length - 1].containerID}
