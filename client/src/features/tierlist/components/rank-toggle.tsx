@@ -9,12 +9,16 @@ interface RankToggleProps {
 export default function RankToggle(props: RankToggleProps) {
   return (
     <div className="flex justify-end items-center gap-2 bg-transparent text-slate-100 mb-5">
-      <Label className="text-slate-500 text-md cursor-pointer" htmlFor="rankToggle">
+      <Label
+        className="text-slate-500 text-md cursor-pointer"
+        htmlFor="rankToggle"
+      >
         Switch to ELO Ranking
       </Label>
-      <Switch id="rankToggle"
+      <Switch
+        id="rankToggle"
         checked={props.isELORanksOn}
-        onChange={props.handleELOToggle}
+        onCheckedChange={props.handleELOToggle}
       />
     </div>
   );

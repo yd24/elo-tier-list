@@ -42,9 +42,9 @@ const test_data = [
 
 function TierListPage() {
   const [ranks, setRanks] = useState<string[]>(["S", "A", "B", "C", "D", "F"]);
+  const [originalItems, setOriginalItems] = useState<ItemType[]>([]);
   //setup initial rank and unranked containers
   //keep copy of original items for resetting positions
-  const [originalItems, setOriginalItems] = useState<ItemType[]>([]);
   const [itemContainers, setItemContainers] = useState<ItemContainerType[]>(
     () => {
       const initialContainers: ItemContainerType[] = [];
@@ -164,10 +164,6 @@ function TierListPage() {
       return updatedContainers;
     });
   };
-
-  useEffect(() => {
-    console.log(originalItems, 'original');
-  }, [originalItems]);
 
   return (
     <div className="bg-slate-100 p-5">

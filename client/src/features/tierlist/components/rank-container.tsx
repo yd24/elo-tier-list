@@ -22,7 +22,7 @@ export default function RankContainer(props: RankContainerProps) {
 
     return (
         <>
-            <div className="flex min-h-32 mb-5 odd:bg-slate-100 even:bg-slate-200"
+            <div className="flex min-h-20 border border-slate-300 border-collapse odd:bg-slate-100 even:bg-slate-200"
                 ref={setNodeRef}
             >
                 <input 
