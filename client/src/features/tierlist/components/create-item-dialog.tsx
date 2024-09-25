@@ -13,7 +13,7 @@ interface CreateItemDialogProps {
     addItem: (name: string) => void;
 }
 
-function CreateItemDialog(props: CreateItemDialogProps) {
+export default function CreateItemDialog(props: CreateItemDialogProps) {
     const [itemName, setItemName] = useState('');
     const [open, setOpen] = useState(false);
     const [dialogError, setDialogError] = useState(false);
@@ -69,5 +69,3 @@ function CreateItemDialog(props: CreateItemDialogProps) {
         </Dialog>
     );
 }
-
-export default CreateItemDialog;

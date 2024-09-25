@@ -185,7 +185,7 @@ function TierListPage() {
           ))}
         </div>
         <div id="itemArea" className="flex flex-col">
-          <ItemContainerControls addItem={addItem} resetItems={resetItems} />
+          <ItemContainerControls addItem={addItem} resetItems={resetItems} allItems={originalItems} />
           <ItemContainer
             items={itemContainers[itemContainers.length - 1].items}
             dndID={itemContainers[itemContainers.length - 1].containerID}
