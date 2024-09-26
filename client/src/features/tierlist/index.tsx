@@ -59,7 +59,7 @@ function TierListPage() {
       return initialContainers;
     }
   );
-  const [isELORanksOn, toggleELORanks] = useState(false);
+  const [isTrueRanksOn, toggleTrueRanks] = useState(false);
 
   const addItem = (name: string) => {
     //to-do
@@ -85,8 +85,8 @@ function TierListPage() {
     });
   };
 
-  const handleELOToggle = () => {
-    toggleELORanks((currentStatus) => !currentStatus);
+  const handleTrueToggle = () => {
+    toggleTrueRanks((currentStatus) => !currentStatus);
   };
 
   const updateRankHandler = (value: string, idx: number) => {
@@ -169,8 +169,8 @@ function TierListPage() {
     <div className="bg-slate-100 p-5">
       <DndContext onDragEnd={dragEndHandler}>
         <RankToggle
-          isELORanksOn={isELORanksOn}
-          handleELOToggle={handleELOToggle}
+          isTrueRanksOn={isTrueRanksOn}
+          handleTrueToggle={handleTrueToggle}
         />
         <div id="rankArea">
           {ranks.map((rank: string, idx: number) => (

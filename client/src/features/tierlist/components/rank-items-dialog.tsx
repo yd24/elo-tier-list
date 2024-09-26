@@ -38,10 +38,10 @@ export default function RankItemsDialog(props: RankItemsDialogProps) {
     setMatchesLeft(
       rankingSpeedSelected === 1 ? itemsToRank.size : itemsToRank.size * 2
     );
-    newMatch();
+    //newMatch();
   };
 
-  const newMatch = () => {
+  /*const newMatch = () => {
     const fightingItems = shuffleItems([...itemsToRank.keys()]);
     if (fightingItems.length >= 2) {
       const item1_ID = fightingItems.pop() as ItemType;
@@ -68,16 +68,20 @@ export default function RankItemsDialog(props: RankItemsDialogProps) {
     setMatchesLeft(matchesLeft - 1);
     setItemsToRank(updatedItems);
     newMatch();
-  };
+  };*/
   
   useEffect(() => {
-    if (!open) selectRankingSpeed(null);
+    if (!open) {
+      //cleanup function that runs when open changes
+      //aka it resets the dialog box before it opens again
+      return () => selectRankingSpeed(null);
+    }
   }, [open])
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger className="bg-white hover:bg-slate-200 px-5 py-2">
-        ELO Rank Items
+        True Rank Items
       </DialogTrigger>
       <DialogContent onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
@@ -101,10 +105,10 @@ export default function RankItemsDialog(props: RankItemsDialogProps) {
             <>
               <h3 className="text-lg mb-5">Which do you prefer?</h3>
               <div className="flex gap-10">
-                <Button onClick={() => decideMatch(0)}>
+                <Button onClick={() => console.log()}>
                   {itemsInCombat[0].title}
                 </Button>
-                <Button onClick={() => decideMatch(1)}>
+                <Button onClick={() => console.log()}>
                   {itemsInCombat[1].title}
                 </Button>
               </div>

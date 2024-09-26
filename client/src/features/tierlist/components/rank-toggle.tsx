@@ -2,8 +2,8 @@ import { Switch } from "../../../components/ui/switch";
 import { Label } from "../../../components/ui/label";
 
 interface RankToggleProps {
-  isELORanksOn: boolean;
-  handleELOToggle: () => void;
+  isTrueRanksOn: boolean;
+  handleTrueToggle: () => void;
 }
 
 export default function RankToggle(props: RankToggleProps) {
@@ -13,12 +13,12 @@ export default function RankToggle(props: RankToggleProps) {
         className="text-slate-500 text-md cursor-pointer"
         htmlFor="rankToggle"
       >
-        Switch to ELO Ranking
+        {!props.isTrueRanksOn ? 'Currently using Manual Ranking' : 'Currently using True Ranking'}
       </Label>
       <Switch
         id="rankToggle"
-        checked={props.isELORanksOn}
-        onCheckedChange={props.handleELOToggle}
+        checked={props.isTrueRanksOn}
+        onCheckedChange={props.handleTrueToggle}
       />
     </div>
   );
