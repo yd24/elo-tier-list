@@ -44,6 +44,7 @@ export default class MatchMaker {
   }
 
   public getMatchUp(): ItemType[] {
+    console.log(this.itemsBeingRanked);
     if (this.itemsBeingRanked.length > 1) {
       const item1 = this.itemsBeingRanked.pop();
       const item2 = this.itemsBeingRanked.pop();

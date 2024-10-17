@@ -16,6 +16,7 @@ interface RankItemsDialogProps {
   allItems: ItemType[];
   updateTrueRankHandler: (updatedRanks: ItemContainerType[]) => void;
   trueRankedItemContainers: ItemContainerType[];
+  toggleTrueRanks: () => void;
 }
 
 export default function RankItemsDialog(props: RankItemsDialogProps) {
@@ -29,6 +30,7 @@ export default function RankItemsDialog(props: RankItemsDialogProps) {
   const [hasRankingFinished, setHasRankingFinished] = useState(true);
 
   const startRankHandler = () => {
+    props.toggleTrueRanks();
     matchmaker.setItems(itemsToRank);
     setHasRankingFinished(!hasRankingFinished);
     matchmaker.startRanking();
@@ -51,7 +53,6 @@ export default function RankItemsDialog(props: RankItemsDialogProps) {
     const finalScores = matchmaker.organizeIntoRanks();
     handleFinalRankings(finalScores);
     matchmaker.finishRanking();
-    setHasRankingFinished(!hasRankingFinished);
   };
 
   const handleWinner = (winner: ItemType, loser: ItemType, winType: number) => {
@@ -123,13 +124,13 @@ export default function RankItemsDialog(props: RankItemsDialogProps) {
           <DialogTitle>Rank Items</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col items-center p-5">
-          {hasRankingFinished && (
+          {hasRankingFinished && !matchmaker.rankingPending && (
             <>
               <h3>True Ranking System</h3>
               <Button onClick={startRankHandler}>Start Now</Button>
             </>
           )}
-          {itemsInCombat.length >= 2 && (
+          {itemsInCombat.length >= 2 && matchmaker.rankingPending && (
             <>
               <h3 className="text-lg mb-5">Which do you prefer?</h3>
               <div className="flex gap-10">
@@ -150,7 +151,7 @@ export default function RankItemsDialog(props: RankItemsDialogProps) {
               </div>
             </>
           )}
-          {itemsInCombat.length === 0 && !hasRankingFinished && (
+          {itemsInCombat.length === 0 && matchmaker.rankingPending && (
             <>
               <p className="text-lg mb-5">There are no items to rank.</p>
               <p className="text-lg mb-5">Please add some items.</p>

@@ -207,6 +207,7 @@ function TierListPage() {
             allItems={originalItems}
             updateTrueRankHandler={updateTrueRankHandler}
             trueRankedItemContainers={trueRankedItemContainers}
+            toggleTrueRanks={handleTrueToggle}
           />
           <ItemContainer
             items={itemContainers[itemContainers.length - 1].items}
