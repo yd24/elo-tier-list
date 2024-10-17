@@ -24,6 +24,7 @@ export default function RankItemsDialog(props: RankItemsDialogProps) {
   const [dialogError, setDialogError] = useState(false);
   const [itemsToRank, setItemsToRank] = useState<ItemType[]>(props.allItems);
   const [itemsInCombat, setItemsCombat] = useState<ItemType[]>([]);
+  const [byeHandled, setByeHandled] = useState(false);
   const [matchmaker, setMatchMaker] = useState<MatchMaker>(
     MatchMaker.getInstance()
   );
@@ -39,16 +40,17 @@ export default function RankItemsDialog(props: RankItemsDialogProps) {
 
   const conductMatches = () => {
     let currentMatchup = matchmaker.getMatchUp();
-    if (currentMatchup.length > 0) {
+    if (currentMatchup.length > 0 && !byeHandled) {
       setItemsCombat(currentMatchup);
+    } else if (!byeHandled) {
+      setItemsCombat(matchmaker.handleBye());
+      setByeHandled(true);
     } else {
       postMatches();
     }
   };
 
   const postMatches = () => {
-    //post-matches stuff
-    setItemsCombat(matchmaker.handleBye());
     //do transitive ranking update
     const finalScores = matchmaker.organizeIntoRanks();
     handleFinalRankings(finalScores);

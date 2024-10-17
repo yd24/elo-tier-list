@@ -28,13 +28,17 @@ export default class ItemGraph {
     } else {
       this.nodes.set(winner, [{ item: loser, weight: winType }]);
     }
+
+    if (!this.nodes.has(loser)) {
+      this.nodes.set(loser, []);
+    }
   }
 
   public getWins(winner: ItemType) {
     return this.nodes.get(winner);
   }
 
-  public getGraphNode(item: ItemType) {
+  public getGraphEdges(item: ItemType) {
     return this.nodes.get(item);
   }
 

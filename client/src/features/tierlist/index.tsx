@@ -16,27 +16,22 @@ const test_data = [
   {
     id: "Item-0",
     title: "Jollibee",
-    elo: 1400,
   },
   {
     id: "Item-1",
     title: "KFC",
-    elo: 1200,
   },
   {
     id: "Item-2",
     title: "Popeyes",
-    elo: 400,
   },
   {
     id: "Item-3",
     title: "Church's",
-    elo: 1600,
   },
   {
     id: "Item-4",
     title: "Applebee",
-    elo: 200,
   },
 ];
 

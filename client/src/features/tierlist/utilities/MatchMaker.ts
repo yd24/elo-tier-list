@@ -44,7 +44,6 @@ export default class MatchMaker {
   }
 
   public getMatchUp(): ItemType[] {
-    console.log(this.itemsBeingRanked);
     if (this.itemsBeingRanked.length > 1) {
       const item1 = this.itemsBeingRanked.pop();
       const item2 = this.itemsBeingRanked.pop();
@@ -59,7 +58,10 @@ export default class MatchMaker {
     if (this.byeItem) {
       this.itemsBeingRanked = [...this.itemsToRank];
       this.itemsBeingRanked = this.shuffle(this.itemsBeingRanked);
-      const item1 = this.itemsBeingRanked.pop();
+      let item1 = this.itemsBeingRanked.pop();
+      while (item1 === this.byeItem) {
+        item1 = this.itemsBeingRanked.pop();
+      }
       const item2 = this.byeItem;
       if (item1 && item2) {
         return [item1, item2];
@@ -72,7 +74,7 @@ export default class MatchMaker {
     //dfs traversal in graph to count up wins for each item.
     const scores = [];
     const dfs = (node: ItemType) => {
-      const wonAgainst = this.rankingGraph.getGraphNode(node);
+      const wonAgainst = this.rankingGraph.getGraphEdges(node);
       if (!wonAgainst || wonAgainst.length === 0) return 0;
       const totalWins: number = wonAgainst.reduce((acc, curr) => {
         return acc + dfs(curr.item);
@@ -82,13 +84,7 @@ export default class MatchMaker {
 
     const nodes = this.rankingGraph.getAllNodes();
     for (const node of nodes) {
-      const adjList = this.rankingGraph.getGraphNode(node);
-      let totalWins = 0;
-      if (adjList) {
-        for (const item of adjList) {
-          totalWins = dfs(item.item);
-        }
-      }
+      const totalWins = dfs(node);
       scores.push({ node, totalWins });
     }
     return scores;
@@ -97,8 +93,7 @@ export default class MatchMaker {
   public organizeIntoRanks() {
     const scores = this.transitiveRanking();
     scores.sort((a, b) => b.totalWins - a.totalWins);
-
-    const totalMatches = scores.length - 1;
+    console.log(scores);
     const rankings: ItemType[][] = [
       //S
       [],
@@ -114,20 +109,34 @@ export default class MatchMaker {
       [],
     ];
 
-    scores.forEach((item) => {
+    scores.forEach((item, idx) => {
       const node = item.node;
-      const finalScore = item.totalWins;
-      const winLossRatio = Math.floor((finalScore / totalMatches) * 100);
+      const totalItems = scores.length;
 
-      if (winLossRatio >= 95) {
+      const thresholds = {
+        S: Math.ceil(totalItems * 0.1), //1
+        A: Math.ceil(totalItems * 0.2), //1
+        B: Math.ceil(totalItems * 0.4), //2
+        C: Math.ceil(totalItems * 0.4), //2
+        D: Math.ceil(totalItems * 0.3), //
+        F: totalItems,
+      };
+
+      if (idx < thresholds.S) {
         rankings[0].push(node);
-      } else if (winLossRatio >= 80) {
+      } else if (idx < thresholds.S + thresholds.A) {
         rankings[1].push(node);
-      } else if (winLossRatio >= 70) {
+      } else if (idx < thresholds.S + thresholds.A + thresholds.B) {
         rankings[2].push(node);
-      } else if (winLossRatio >= 50) {
+      } else if (
+        idx <
+        thresholds.S + thresholds.A + thresholds.B + thresholds.C
+      ) {
         rankings[3].push(node);
-      } else if (winLossRatio >= 30) {
+      } else if (
+        idx <
+        thresholds.S + thresholds.A + thresholds.B + thresholds.C + thresholds.D
+      ) {
         rankings[4].push(node);
       } else {
         rankings[5].push(node);
