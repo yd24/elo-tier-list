@@ -9,37 +9,72 @@ import {
 } from "../../../components/ui/dialog";
 import { Button } from "../../../components/ui/button";
 import { ItemType } from "../types/ItemType";
+import { ItemContainerType } from "../types/ItemContainerType";
+import MatchMaker from "../utilities/MatchMaker";
 
 interface RankItemsDialogProps {
   allItems: ItemType[];
+  updateTrueRankHandler: (updatedRanks: ItemContainerType[]) => void;
+  trueRankedItemContainers: ItemContainerType[];
 }
 
 export default function RankItemsDialog(props: RankItemsDialogProps) {
-  const kFactor = 100;
   const [open, setOpen] = useState(false);
   const [dialogError, setDialogError] = useState(false);
-  const [itemsToRank, setItemsToRank] = useState<Map<ItemType, number>>(() => {
-    const map = new Map<ItemType, number>();
-    const originalItems = [...props.allItems];
-    const startingELO = 1000;
-    originalItems.forEach((item) => map.set(item, startingELO));
-    return map;
-  });
-  const [rankingSpeedSelected, selectRankingSpeed] = useState<number | null>(null);
-  const [matchesLeft, setMatchesLeft] = useState(0);
+  const [itemsToRank, setItemsToRank] = useState<ItemType[]>(props.allItems);
   const [itemsInCombat, setItemsCombat] = useState<ItemType[]>([]);
+  const [matchmaker, setMatchMaker] = useState<MatchMaker>(
+    MatchMaker.getInstance()
+  );
+  const [hasRankingFinished, setHasRankingFinished] = useState(true);
 
-  const handleSpeedSelection = (speed: number) => {
-    setupMatch();
-    selectRankingSpeed(speed);
+  const startRankHandler = () => {
+    matchmaker.setItems(itemsToRank);
+    setHasRankingFinished(!hasRankingFinished);
+    matchmaker.startRanking();
+    conductMatches();
   };
 
-  const setupMatch = () => {
+  const conductMatches = () => {
+    let currentMatchup = matchmaker.getMatchUp();
+    if (currentMatchup.length > 0) {
+      setItemsCombat(currentMatchup);
+    } else {
+      postMatches();
+    }
+  };
+
+  const postMatches = () => {
+    //post-matches stuff
+    setItemsCombat(matchmaker.handleBye());
+    //do transitive ranking update
+    const finalScores = matchmaker.organizeIntoRanks();
+    handleFinalRankings(finalScores);
+    matchmaker.finishRanking();
+    setHasRankingFinished(!hasRankingFinished);
+  };
+
+  const handleWinner = (winner: ItemType, loser: ItemType, winType: number) => {
+    matchmaker.updateRanks(winner, loser, winType);
+    conductMatches();
+  };
+
+  const handleFinalRankings = (scores: ItemType[][]) => {
+    const updatedRanks = props.trueRankedItemContainers.map(
+      (container, idx) => {
+        container.items = scores[idx];
+        return container;
+      }
+    );
+    props.updateTrueRankHandler(updatedRanks);
+  };
+
+  /*const setupMatch = () => {
     setMatchesLeft(
       rankingSpeedSelected === 1 ? itemsToRank.size : itemsToRank.size * 2
     );
     //newMatch();
-  };
+  };*/
 
   /*const newMatch = () => {
     const fightingItems = shuffleItems([...itemsToRank.keys()]);
@@ -69,14 +104,14 @@ export default function RankItemsDialog(props: RankItemsDialogProps) {
     setItemsToRank(updatedItems);
     newMatch();
   };*/
-  
+
   useEffect(() => {
     if (!open) {
       //cleanup function that runs when open changes
       //aka it resets the dialog box before it opens again
-      return () => selectRankingSpeed(null);
+      return () => setHasRankingFinished(true);
     }
-  }, [open])
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -88,45 +123,44 @@ export default function RankItemsDialog(props: RankItemsDialogProps) {
           <DialogTitle>Rank Items</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col items-center p-5">
-          {!rankingSpeedSelected 
-          &&
+          {hasRankingFinished && (
             <>
-              <h3 className="text-lg mb-5">Select ranking duration</h3>
-              <div className="flex gap-10">
-                <Button onClick={() => handleSpeedSelection(1)}>Quick</Button>
-                <Button onClick={() => handleSpeedSelection(2)}>
-                  Comprehensive
-                </Button>
-              </div>
+              <h3>True Ranking System</h3>
+              <Button onClick={startRankHandler}>Start Now</Button>
             </>
-          }
-          {(rankingSpeedSelected && itemsInCombat.length >= 2 && matchesLeft > 0)
-          &&
+          )}
+          {itemsInCombat.length >= 2 && (
             <>
               <h3 className="text-lg mb-5">Which do you prefer?</h3>
               <div className="flex gap-10">
-                <Button onClick={() => console.log()}>
+                <Button
+                  onClick={() =>
+                    handleWinner(itemsInCombat[0], itemsInCombat[1], 1)
+                  }
+                >
                   {itemsInCombat[0].title}
                 </Button>
-                <Button onClick={() => console.log()}>
+                <Button
+                  onClick={() =>
+                    handleWinner(itemsInCombat[1], itemsInCombat[0], 1)
+                  }
+                >
                   {itemsInCombat[1].title}
                 </Button>
               </div>
             </>
-          }
-          {(rankingSpeedSelected && itemsInCombat.length === 0) 
-          &&
+          )}
+          {itemsInCombat.length === 0 && !hasRankingFinished && (
             <>
               <p className="text-lg mb-5">There are no items to rank.</p>
               <p className="text-lg mb-5">Please add some items.</p>
             </>
-          }
-          {(rankingSpeedSelected && matchesLeft === 0)
-          &&
+          )}
+          {!hasRankingFinished && !matchmaker.rankingPending && (
             <>
               <p className="text-lg mb-5">Ranking Completed!</p>
             </>
-          }
+          )}
         </div>
         <DialogFooter className="text-red-500">
           {dialogError && <p>Error: Name is invalid.</p>}

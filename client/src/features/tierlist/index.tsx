@@ -43,22 +43,27 @@ const test_data = [
 function TierListPage() {
   const [ranks, setRanks] = useState<string[]>(["S", "A", "B", "C", "D", "F"]);
   const [originalItems, setOriginalItems] = useState<ItemType[]>([]);
+
   //setup initial rank and unranked containers
   //keep copy of original items for resetting positions
+  const initializeContainers = () => {
+    const initialContainers: ItemContainerType[] = [];
+    ranks.forEach((rank, idx) => {
+      let rankContainer = createItemContainer(`rankList-${idx}`, []);
+      initialContainers.push(rankContainer);
+    });
+    initialContainers.push(createItemContainer("itemList", test_data));
+    setOriginalItems([
+      ...initialContainers[initialContainers.length - 1].items,
+    ]);
+    return initialContainers;
+  };
   const [itemContainers, setItemContainers] = useState<ItemContainerType[]>(
-    () => {
-      const initialContainers: ItemContainerType[] = [];
-      ranks.forEach((rank, idx) => {
-        let rankContainer = createItemContainer(`rankList-${idx}`, []);
-        initialContainers.push(rankContainer);
-      });
-      initialContainers.push(createItemContainer("itemList", test_data));
-      setOriginalItems([
-        ...initialContainers[initialContainers.length - 1].items,
-      ]);
-      return initialContainers;
-    }
+    () => initializeContainers()
   );
+  const [trueRankedItemContainers, setTrueRankContainers] = useState<
+    ItemContainerType[]
+  >(() => initializeContainers());
   const [isTrueRanksOn, toggleTrueRanks] = useState(false);
 
   const addItem = (name: string) => {
@@ -69,7 +74,10 @@ function TierListPage() {
       //spread operator only does shallow copy
       //so if the state is nested, the inner state elements will still reference the original state.
       //we can do a deep copy using spread operators within map.
-      const updatedContainers = prevContainers.map((container) => ({...container, items: [...container.items]}));
+      const updatedContainers = prevContainers.map((container) => ({
+        ...container,
+        items: [...container.items],
+      }));
       updatedContainers[updatedContainers.length - 1].items.push(newItem);
       return updatedContainers;
     });
@@ -97,6 +105,10 @@ function TierListPage() {
       updatedRanks[idx] = value;
       return updatedRanks;
     });
+  };
+
+  const updateTrueRankHandler = (updatedRanks: ItemContainerType[]) => {
+    setTrueRankContainers(updatedRanks);
   };
 
   const dragEndHandler = (event: DragEndEvent) => {
@@ -180,12 +192,22 @@ function TierListPage() {
               rankID={idx}
               rank={rank}
               updateRankHandler={updateRankHandler}
-              items={itemContainers[idx].items}
+              items={
+                isTrueRanksOn
+                  ? trueRankedItemContainers[idx].items
+                  : itemContainers[idx].items
+              }
             />
           ))}
         </div>
         <div id="itemArea" className="flex flex-col">
-          <ItemContainerControls addItem={addItem} resetItems={resetItems} allItems={originalItems} />
+          <ItemContainerControls
+            addItem={addItem}
+            resetItems={resetItems}
+            allItems={originalItems}
+            updateTrueRankHandler={updateTrueRankHandler}
+            trueRankedItemContainers={trueRankedItemContainers}
+          />
           <ItemContainer
             items={itemContainers[itemContainers.length - 1].items}
             dndID={itemContainers[itemContainers.length - 1].containerID}

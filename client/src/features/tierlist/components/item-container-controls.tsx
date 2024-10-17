@@ -2,11 +2,14 @@ import CreateItemDialog from './create-item-dialog';
 import RankItemsDialog from './rank-items-dialog';
 import { Dialog, DialogTrigger } from '../../../components/ui/dialog';
 import { ItemType } from '../types/ItemType';
+import { ItemContainerType } from "../types/ItemContainerType";
 
 interface ItemsContainerControlsProps {
     addItem: (name: string) => void;
     resetItems: () => void;
     allItems: ItemType[];
+    updateTrueRankHandler: (updatedRanks: ItemContainerType[]) => void;
+    trueRankedItemContainers: ItemContainerType[];
 }
 
 function ItemsContainerControls(props: ItemsContainerControlsProps) {
@@ -21,7 +24,7 @@ function ItemsContainerControls(props: ItemsContainerControlsProps) {
                 </Dialog>
             </div>
             <div className="p-5">
-                <RankItemsDialog allItems={props.allItems}/>
+                <RankItemsDialog allItems={props.allItems} updateTrueRankHandler={props.updateTrueRankHandler} trueRankedItemContainers={props.trueRankedItemContainers}/>
             </div>
         </div>
     );
